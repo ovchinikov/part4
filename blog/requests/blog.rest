@@ -1,0 +1,18 @@
+###
+GET http://localhost:3000/api/blogs
+
+###
+
+POST http://localhost:3000/api/blogs
+Content-Type:application/json
+
+{
+    "title": "Test Blog",
+    "author": "Test Author",
+    "url": "http://test.com",
+    "likes": 0
+}
+
+### 
+
+DELETE http://localhost:3000/api/blogs/659fb66a42b0145e58c1e1fa
