@@ -2,9 +2,10 @@ const mongoose = require('mongoose');
 
 mongoose.set('strictQuery', false);
 const mongoUrl = process.env.MONGO_URI;
-mongoose.connect(mongoUrl).then(() => {
-  console.log('connected to MongoDB');
-});
+mongoose
+  .connect(mongoUrl)
+  .then()
+  .catch((err) => console.error(err));
 
 const blogSchema = new mongoose.Schema({
   title: String,
