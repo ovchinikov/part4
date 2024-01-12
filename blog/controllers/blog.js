@@ -38,4 +38,18 @@ router.delete('/:id', async (req, res) => {
   res.status(204).end();
 });
 
+router.put('/:id', async (req, res) => {
+  const { title, author, url, likes } = req.body;
+  const blog = {
+    title,
+    author,
+    url,
+    likes,
+  };
+  const updatedBlog = await Blog.findByIdAndUpdate(req.params.id, blog, {
+    new: true,
+  });
+  res.json(updatedBlog);
+});
+
 module.exports = router;
