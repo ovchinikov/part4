@@ -2,30 +2,40 @@ const router = require('express').Router();
 
 const Blog = require('../models/blog');
 
-router.get('/', (_request, response) => {
-  Blog.find({}).then((blogs) => {
-    response.json(blogs);
-  });
+router.get('/', async (_req, res) => {
+  const blogs = await Blog.find({});
+  res.json(blogs);
 });
 
-router.get('/:id', (req, res) => {
-  Blog.findById(req.params.id).then((blog) => {
+router.get('/:id', async (req, res) => {
+  const blog = await Blog.findById(req.params.id);
+  if (!blog) {
+    res.status(404).end();
+  } else {
     res.json(blog);
-  });
+  }
 });
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const { title, author, url, likes } = req.body;
-  Blog.create({ title, author, url, likes }).then((blog) => {
-    res.json(blog);
-  });
+  if (!title || !url) {
+    res.status(400).end();
+  } else {
+    const blog = new Blog({
+      title,
+      author,
+      url,
+      likes: likes || 0,
+    });
+    const result = await blog.save();
+    res.status(201).json(result);
+  }
 });
 
-router.delete('/:id', (req, res) => {
-  const { id } = req.params.id;
-  Blog.findByIdAndDelete(id).then(() =>
-    res.json({ message: 'Blog deleted successfully' }),
-  );
+router.delete('/:id', async (req, res) => {
+  const blog = await Blog.findByIdAndDelete(req.params.id);
+  console.log(blog);
+  res.status(204).end();
 });
 
 module.exports = router;

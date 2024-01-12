@@ -1,5 +1,11 @@
 ###
+
+
 GET http://localhost:3000/api/blogs
+
+###
+
+GET http://localhost:3000/api/blogs/65a0eb85795c91d7a9f50598
 
 ###
 
@@ -15,4 +21,4 @@ Content-Type:application/json
 
 ### 
 
-DELETE http://localhost:3000/api/blogs/659fb66a42b0145e58c1e1fa
+DELETE http://localhost:3000/api/blogs/65a0eb85795c91d7a9f50598
