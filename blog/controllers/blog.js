@@ -1,14 +1,26 @@
 const router = require('express').Router();
-
+const jwt = require('jsonwebtoken');
 const Blog = require('../models/blog');
+const User = require('../models/user');
+
+const getTokenFrom = (request) => {
+  const authorization = request.get('authorization');
+  if (authorization && authorization.startsWith('Bearer ')) {
+    return authorization.replace('Bearer ', '');
+  }
+  return null;
+};
 
 router.get('/', async (_req, res) => {
-  const blogs = await Blog.find({});
+  const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 });
   res.json(blogs);
 });
 
 router.get('/:id', async (req, res) => {
-  const blog = await Blog.findById(req.params.id);
+  const blog = await Blog.findById(req.params.id).populate('user', {
+    username: 1,
+    name: 1,
+  });
   if (!blog) {
     res.status(404).end();
   } else {
@@ -17,7 +29,15 @@ router.get('/:id', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const { title, author, url, likes } = req.body;
+  const body = req.body;
+  const { title, author, url, likes } = body;
+
+  const decodedToken = jwt.verify(getTokenFrom(req), process.env.SECRET);
+  if (!decodedToken.id) {
+    return res.status(401).json({ error: 'token invalid' });
+  }
+  const user = await User.findById(decodedToken.id);
+
   if (!title || !url) {
     res.status(400).end();
   } else {
@@ -26,15 +46,17 @@ router.post('/', async (req, res) => {
       author,
       url,
       likes: likes || 0,
+      user: user._id,
     });
     const result = await blog.save();
+    user.blogs = user.blogs.concat(result._id);
+    await user.save();
     res.status(201).json(result);
   }
 });
 
 router.delete('/:id', async (req, res) => {
-  const blog = await Blog.findByIdAndDelete(req.params.id);
-  console.log(blog);
+  await Blog.findByIdAndDelete(req.params.id);
   res.status(204).end();
 });
 
